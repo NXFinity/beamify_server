@@ -58,4 +58,32 @@ Beamify Server is a robust, extensible backend API designed to power the Beamify
 ## API Documentation
 
 - **Swagger/OpenAPI:**
-  - All endpoints are documented and accessible at `/api-docs`
+  - All endpoints are documented and accessible at `/api-docs` when the server is running.
+  - Swagger JSONs are in `src/api/*/*Swagger.json` and `src/admin/*Swagger.json`.
+
+## Gamification System
+
+- **Entities:** Points, levels, exp, crystals, rewards, badges, activities
+- **Endpoints:**
+  - Public and private endpoints for viewing gamify profiles, activities, badges, and rewards
+  - Admin endpoints for managing gamification data
+- **Real-time Gateway:**
+  - Socket.IO gateway (`gamifyGateway.js`) for real-time notifications (points, levels, rewards, etc.)
+  - Relay gateways for activities, badges, and rewards
+
+## Admin System
+
+- Role and permission seeding from JSON assets
+- Full CRUD for roles, permissions, users, and gamification entities
+- Admin-only endpoints protected by RBAC
+- Audit and error logging
+
+## Contributing & Testing
+
+- PRs and issues welcome!
+- Automated tests recommended (not included by default)
+- See Swagger docs for endpoint testing
+
+## License
+
+MIT
