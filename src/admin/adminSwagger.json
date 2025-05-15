@@ -1,0 +1,788 @@
+{
+  "tags": [
+    {
+      "name": "Admin User Management",
+      "description": "Endpoints for managing users as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Role Management",
+      "description": "Endpoints for managing roles as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Permission Management",
+      "description": "Endpoints for managing permissions as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Gamify Management",
+      "description": "Endpoints for managing gamify profiles as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Badge Management",
+      "description": "Endpoints for managing badges as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Reward Management",
+      "description": "Endpoints for managing rewards as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    }
+  ],
+  "paths": {
+    "/admin/users": {
+      "post": {
+        "summary": "Create a new user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User created" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "put": {
+        "summary": "Update a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "User deleted" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}/ban": {
+      "post": {
+        "summary": "Ban a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "User banned" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}/timeout": {
+      "post": {
+        "summary": "Timeout a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "timeoutUntil": { "type": "string", "format": "date-time" }
+                },
+                "required": ["timeoutUntil"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User timed out" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}/suspend": {
+      "post": {
+        "summary": "Suspend a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "User suspended" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}/roles": {
+      "post": {
+        "summary": "Assign a role to a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "role": { "type": "string" } },
+                "required": ["role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role assigned to user" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Remove a role from a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "role": { "type": "string" } },
+                "required": ["role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role removed from user" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/{id}/permissions": {
+      "post": {
+        "summary": "Assign a permission to a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "permission": { "type": "string" } },
+                "required": ["permission"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission assigned to user" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Remove a permission from a user [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "permission": { "type": "string" } },
+                "required": ["permission"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission removed from user" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/roles": {
+      "post": {
+        "summary": "Create a new role [Admin]",
+        "tags": ["Admin Role Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role created" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "get": {
+        "summary": "Get all roles [Admin]",
+        "tags": ["Admin Role Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": { "description": "List of roles" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/roles/{id}": {
+      "get": {
+        "summary": "Get role by ID [Admin]",
+        "tags": ["Admin Role Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Role found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update role by ID [Admin]",
+        "tags": ["Admin Role Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete role by ID [Admin]",
+        "tags": ["Admin Role Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Role deleted" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/permissions": {
+      "post": {
+        "summary": "Create a new permission [Admin]",
+        "tags": ["Admin Permission Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission created" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "get": {
+        "summary": "Get all permissions [Admin]",
+        "tags": ["Admin Permission Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": { "description": "List of permissions" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/permissions/{id}": {
+      "get": {
+        "summary": "Get permission by ID [Admin]",
+        "tags": ["Admin Permission Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Permission found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update permission by ID [Admin]",
+        "tags": ["Admin Permission Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Permission updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete permission by ID [Admin]",
+        "tags": ["Admin Permission Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Permission deleted" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify": {
+      "get": {
+        "summary": "Get all gamify profiles [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": { "description": "List of gamify profiles" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}": {
+      "get": {
+        "summary": "Get gamify profile by ID [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Gamify profile found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update gamify profile by ID [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Gamify profile updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/add-points": {
+      "post": {
+        "summary": "Add points to gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Points added" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/remove-points": {
+      "post": {
+        "summary": "Remove points from gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Points removed" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/add-level": {
+      "post": {
+        "summary": "Add level(s) to gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Level(s) added" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/remove-level": {
+      "post": {
+        "summary": "Remove level(s) from gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Level(s) removed" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/add-exp": {
+      "post": {
+        "summary": "Add experience to gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Experience added" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/remove-exp": {
+      "post": {
+        "summary": "Remove experience from gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Experience removed" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/add-crystals": {
+      "post": {
+        "summary": "Add crystals to gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Crystals added" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/gamify/{id}/remove-crystals": {
+      "post": {
+        "summary": "Remove crystals from gamify profile [Admin]",
+        "tags": ["Admin Gamify Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "amount": { "type": "number" } },
+                "required": ["amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Crystals removed" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/badges": {
+      "post": {
+        "summary": "Create a badge [Admin]",
+        "tags": ["Admin Badge Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Badge created" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "get": {
+        "summary": "Get all badges [Admin]",
+        "tags": ["Admin Badge Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": { "description": "List of badges" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/badges/{id}": {
+      "get": {
+        "summary": "Get badge by ID [Admin]",
+        "tags": ["Admin Badge Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Badge found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update badge by ID [Admin]",
+        "tags": ["Admin Badge Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Badge updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete badge by ID [Admin]",
+        "tags": ["Admin Badge Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Badge deleted" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/rewards": {
+      "post": {
+        "summary": "Create a reward [Admin]",
+        "tags": ["Admin Reward Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Reward created" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "get": {
+        "summary": "Get all rewards [Admin]",
+        "tags": ["Admin Reward Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": { "description": "List of rewards" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/rewards/{id}": {
+      "get": {
+        "summary": "Get reward by ID [Admin]",
+        "tags": ["Admin Reward Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Reward found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update reward by ID [Admin]",
+        "tags": ["Admin Reward Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Reward updated" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete reward by ID [Admin]",
+        "tags": ["Admin Reward Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Reward deleted" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    }
+  }
+}

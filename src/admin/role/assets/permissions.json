@@ -1,0 +1,38 @@
+[
+  {
+    "name": "MANAGE_USERS",
+    "description": "Can create, update, delete, ban, timeout, and suspend users.",
+    "resource": "users",
+    "action": "manage"
+  },
+  {
+    "name": "MANAGE_ROLES",
+    "description": "Can create, update, and delete roles.",
+    "resource": "roles",
+    "action": "manage"
+  },
+  {
+    "name": "MANAGE_PERMISSIONS",
+    "description": "Can create, update, and delete permissions.",
+    "resource": "permissions",
+    "action": "manage"
+  },
+  {
+    "name": "VIEW_AUDIT_LOGS",
+    "description": "Can view audit logs.",
+    "resource": "audit_logs",
+    "action": "view"
+  },
+  {
+    "name": "VIEW_SELF_PROFILE",
+    "description": "Can view own profile.",
+    "resource": "profile",
+    "action": "view"
+  },
+  {
+    "name": "EDIT_SELF_PROFILE",
+    "description": "Can edit own profile.",
+    "resource": "profile",
+    "action": "edit"
+  }
+]

@@ -1,13 +1,40 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const { seedRoles } = require('./src/admin/role/roleService');
+const adminBlock = require('./src/security/validation/adminBlock');
 
-var indexRouter = require('./src//index');
-var usersRouter = require('./src/api/user/userRoute');
+// Connect to the database
+require('./src/db/database');
 
-var beamify_server = express();
+const indexRouter = require('./src/index');
+const usersRouter = require('./src/api/user/userRoute');
+const authRouter = require('./src/security/authRoute');
+const setupSwagger = require("./src/swagger/swagger");
+const cors = require("cors");
+const corsConfig = require('./src/utils/cors.config.json');
+const adminRouter = require('./src/admin/adminRoute');
+const gamifyRouter = require('./src/api/gamify/gamifyRoute');
+
+const beamify_server = express();
+
+// Admin initialization lock-down middleware
+beamify_server.use(adminBlock);
+
+beamify_server.use(cors({
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (corsConfig.allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 // view engine setup
 beamify_server.set('views', path.join(__dirname, 'views'));
@@ -22,6 +49,12 @@ beamify_server.use(express.static(path.join(__dirname, 'public')));
 // Add global prefix for all endpoints
 beamify_server.use('/v1', indexRouter);
 beamify_server.use('/v1/users', usersRouter);
+beamify_server.use('/v1/auth', authRouter);
+beamify_server.use('/v1/admin', adminRouter);
+beamify_server.use('/v1/gamify', gamifyRouter);
+
+// Swagger docs (after all routes)
+setupSwagger(beamify_server);
 
 // catch 404 and forward to error handler
 beamify_server.use(function(req, res, next) {
@@ -30,13 +63,20 @@ beamify_server.use(function(req, res, next) {
 
 // error handler
 beamify_server.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({
+    message: err.message,
+    error: req.app.get('env') === 'development' ? err : {}
+  });
 });
+
+(async () => {
+  try {
+    await seedRoles();
+    console.log('Roles and Permissions seeded.');
+  } catch (err) {
+    console.error('Error seeding roles/Permissions:', err);
+  }
+})();
 
 module.exports = beamify_server;

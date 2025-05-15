@@ -1,20 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('./userController');
+const passport = require('../../security/validation/passport');
 
-// Get all users
+// Public: Get all users
 router.get('/', userController.getAllUsers);
 
-// Get user by ID
+// Protected: Get current user profile (must be before /:id)
+router.get('/me', passport.authenticate('jwt', { session: false }), userController.getCurrentUser);
+
+// Public: Get user by ID
 router.get('/:id', userController.getUserById);
 
-// Get current user profile
-router.get('/me', userController.getCurrentUser);
+// Protected: Update user
+router.put('/:id', passport.authenticate('jwt', { session: false }), userController.updateUser);
 
-// Update user
-router.put('/:id', userController.updateUser);
-
-// Delete user
-router.delete('/:id', userController.deleteUser);
+// Protected: Delete user
+router.delete('/:id', passport.authenticate('jwt', { session: false }), userController.deleteUser);
 
 module.exports = router;

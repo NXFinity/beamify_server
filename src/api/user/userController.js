@@ -1,3 +1,6 @@
+/**
+ * User Management
+ */
 const userService = require('./userService');
 
 exports.getAllUsers = async (req, res, next) => {
@@ -23,7 +26,9 @@ exports.getCurrentUser = async (req, res, next) => {
   try {
     // Assumes req.user is set by authentication middleware
     if (!req.user) return res.status(401).json({ message: 'Not authenticated' });
-    const user = await userService.getUserById(req.user._id);
+    const userId = req.user.id || req.user._id;
+    if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+    const user = await userService.getUserById(userId);
     res.json(user);
   } catch (err) {
     next(err);

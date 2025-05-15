@@ -15,9 +15,21 @@ const gamifySchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
+  exp: {
+    type: Number,
+    default: 0
+  },
+  crystals: {
+    type: Number,
+    default: 0
+  },
   achievements: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Achievement'
+  }],
+  quests: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Quest'
   }],
   badges: [{
     type: mongoose.Schema.Types.ObjectId,

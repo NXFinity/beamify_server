@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "server:dev": "nodemon ./bin/www"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.808.0",
@@ -11,7 +12,7 @@
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
     "cache-manager": "^6.4.3",
-    "chalk": "^5.4.1",
+    "chalk": "^4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",

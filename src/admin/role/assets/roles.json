@@ -1,0 +1,20 @@
+[
+  {
+    "name": "SYSTEM_ADMINISTRATOR",
+    "description": "System Administrator",
+    "permissions": [
+      "MANAGE_USERS",
+      "MANAGE_ROLES",
+      "MANAGE_PERMISSIONS",
+      "VIEW_AUDIT_LOGS"
+    ]
+  },
+  {
+    "name": "MEMBER",
+    "description": "Member",
+    "permissions": [
+      "VIEW_SELF_PROFILE",
+      "EDIT_SELF_PROFILE"
+    ]
+  }
+]

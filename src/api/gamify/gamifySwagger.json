@@ -1,0 +1,205 @@
+{
+  "tags": [
+    {
+      "name": "Gamification Management",
+      "description": "Endpoints for managing user gamification profiles."
+    },
+    {
+      "name": "Activities",
+      "description": "Endpoints for viewing user activities. Public endpoints by username or id, private endpoint for current user (JWT)."
+    },
+    {
+      "name": "Badges",
+      "description": "Endpoints for viewing user badges. Public endpoints by username or id, private endpoint for current user (JWT)."
+    },
+    {
+      "name": "Rewards",
+      "description": "Endpoints for viewing user rewards. Public endpoints by username or id, private endpoint for current user (JWT)."
+    }
+  ],
+  "paths": {
+    "/gamify": {
+      "get": {
+        "summary": "Get all gamify profiles",
+        "tags": ["Gamification Management"],
+        "responses": {
+          "200": { "description": "List of gamify profiles" }
+        }
+      }
+    },
+    "/gamify/{id}": {
+      "get": {
+        "summary": "Get a gamify profile by ID",
+        "tags": ["Gamification Management"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Gamify profile found" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "summary": "Update a gamify profile",
+        "tags": ["Gamification Management"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Gamify"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Gamify profile updated" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a gamify profile",
+        "tags": ["Gamification Management"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Gamify profile deleted" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/gamify/activities/user/{username}": {
+      "get": {
+        "summary": "Get activities by username (public)",
+        "tags": ["Activities"],
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of activities" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/gamify/activities/{id}": {
+      "get": {
+        "summary": "Get activity by ID (public)",
+        "tags": ["Activities"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Activity found" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/gamify/activities/me": {
+      "get": {
+        "summary": "Get all activities for current user (private)",
+        "tags": ["Activities"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of activities" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/gamify/badges/user/{username}": {
+      "get": {
+        "summary": "Get badges by username (public)",
+        "tags": ["Badges"],
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of badges" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/gamify/badges/{id}": {
+      "get": {
+        "summary": "Get badge by ID (public)",
+        "tags": ["Badges"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Badge found" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/gamify/badges/me": {
+      "get": {
+        "summary": "Get all badges for current user (private)",
+        "tags": ["Badges"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of badges" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/gamify/rewards/user/{username}": {
+      "get": {
+        "summary": "Get rewards by username (public)",
+        "tags": ["Rewards"],
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of rewards" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/gamify/rewards/{id}": {
+      "get": {
+        "summary": "Get reward by ID (public)",
+        "tags": ["Rewards"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Reward found" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/gamify/rewards/me": {
+      "get": {
+        "summary": "Get all rewards for current user (private)",
+        "tags": ["Rewards"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of rewards" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Gamify": {
+        "type": "object",
+        "properties": {
+          "user": { "type": "string", "description": "User ID" },
+          "points": { "type": "integer", "default": 0 },
+          "level": { "type": "integer", "default": 1 },
+          "exp": { "type": "integer", "default": 0 },
+          "crystals": { "type": "integer", "default": 0 },
+          "achievements": { "type": "array", "items": { "type": "string" } },
+          "quests": { "type": "array", "items": { "type": "string" } },
+          "badges": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["user"]
+      }
+    }
+  }
+}

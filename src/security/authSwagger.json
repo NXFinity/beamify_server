@@ -1,0 +1,281 @@
+{
+  "description": "Authentication and Authorisation",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login user [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "JWT token and user info" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Register user [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Registration successful, verification email sent" },
+          "400": { "description": "Email already in use" }
+        }
+      }
+    },
+    "/auth/verify": {
+      "post": {
+        "summary": "Verify email [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "token": { "type": "string" }
+                },
+                "required": ["email", "token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Email verified" },
+          "400": { "description": "Invalid or expired token" }
+        }
+      }
+    },
+    "/auth/forgot": {
+      "post": {
+        "summary": "Forgot password [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password reset instructions sent" },
+          "404": { "description": "Email not found" }
+        }
+      }
+    },
+    "/auth/reset": {
+      "post": {
+        "summary": "Reset password [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "token": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                },
+                "required": ["email", "token", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password reset successful" },
+          "400": { "description": "Invalid or expired token" }
+        }
+      }
+    },
+    "/auth/resend": {
+      "post": {
+        "summary": "Resend verification email [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Verification email resent" },
+          "400": { "description": "User already verified or email not found" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout user [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "responses": {
+          "200": { "description": "User logged out" }
+        }
+      }
+    },
+    "/auth/change-password": {
+      "post": {
+        "summary": "Change password [Private] (Authenticated user only)",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "private",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currentPassword": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                },
+                "required": ["currentPassword", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password changed" },
+          "400": { "description": "Current password incorrect" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Get current user profile [Private]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "private",
+        "responses": {
+          "200": { "description": "Current user profile" },
+          "401": { "description": "Not authenticated" }
+        }
+      }
+    },
+    "/auth/reset-verification": {
+      "post": {
+        "summary": "Reset verification token [Public]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "New verification token sent" },
+          "400": { "description": "User already verified or email not found" }
+        }
+      }
+    },
+    "/auth/init-admin": {
+      "post": {
+        "summary": "Initialize Administrator Account [Public, One-time]",
+        "tags": ["Authentication and Authorisation"],
+        "x-access": "public",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin account initialized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": { "type": "string" },
+                        "email": { "type": "string" },
+                        "username": { "type": "string" },
+                        "roles": { "type": "array", "items": { "type": "string" } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Admin account already initialized or missing fields" }
+        }
+      }
+    }
+  }
+}
