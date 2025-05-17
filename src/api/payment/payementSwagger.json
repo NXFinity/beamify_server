@@ -1,0 +1,176 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Payment API",
+    "version": "1.0.0",
+    "description": "Endpoints for Stripe-based payments, subscriptions, and refunds."
+  },
+  "tags": [
+    { "name": "Payment", "description": "Payment and Stripe endpoints" }
+  ],
+  "paths": {
+    "/payment/intent": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Create a payment intent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": { "type": "integer", "example": 1000 },
+                  "currency": { "type": "string", "example": "usd" },
+                  "customer": { "type": "string", "example": "cus_123" },
+                  "metadata": { "type": "object" }
+                },
+                "required": ["amount", "currency"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Client secret and intent returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clientSecret": { "type": "string" },
+                    "intent": { "type": "object" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/customer": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Create a Stripe customer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "name": { "type": "string" },
+                  "metadata": { "type": "object" }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Customer created" },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/subscription": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Create a subscription",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customerId": { "type": "string" },
+                  "priceId": { "type": "string" },
+                  "trial_period_days": { "type": "integer" },
+                  "metadata": { "type": "object" }
+                },
+                "required": ["customerId", "priceId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Subscription created" },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/products": {
+      "get": {
+        "tags": ["Payment"],
+        "summary": "List Stripe products",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "required": false }
+        ],
+        "responses": {
+          "200": { "description": "Products listed" },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/prices": {
+      "get": {
+        "tags": ["Payment"],
+        "summary": "List Stripe prices for a product",
+        "parameters": [
+          { "name": "productId", "in": "query", "schema": { "type": "string" }, "required": true },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" }, "required": false }
+        ],
+        "responses": {
+          "200": { "description": "Prices listed" },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/refund": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Refund a payment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paymentIntentId": { "type": "string" },
+                  "amount": { "type": "integer" }
+                },
+                "required": ["paymentIntentId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Refund processed" },
+          "400": { "description": "Error" }
+        }
+      }
+    },
+    "/payment/webhook": {
+      "post": {
+        "tags": ["Payment"],
+        "summary": "Stripe webhook endpoint (internal use)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Webhook received" },
+          "400": { "description": "Error" }
+        }
+      }
+    }
+  }
+}

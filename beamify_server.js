@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const { seedRoles } = require('./src/admin/role/roleService');
 const adminBlock = require('./src/security/validation/adminBlock');
+const cors = require("cors");
+const corsConfig = require('./src/utils/cors.config.json');
 
 // Connect to the database
 require('./src/db/database');
@@ -13,19 +15,14 @@ const indexRouter = require('./src/index');
 const usersRouter = require('./src/api/user/userRoute');
 const authRouter = require('./src/security/authRoute');
 const setupSwagger = require("./src/swagger/swagger");
-const cors = require("cors");
-const corsConfig = require('./src/utils/cors.config.json');
 const adminRouter = require('./src/admin/adminRoute');
 const gamifyRouter = require('./src/api/gamify/gamifyRoute');
 
 const beamify_server = express();
 
-// Admin initialization lock-down middleware
-beamify_server.use(adminBlock);
-
+// Apply CORS globally before any other middleware
 beamify_server.use(cors({
   origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     if (corsConfig.allowedOrigins.indexOf(origin) !== -1) {
       return callback(null, true);
@@ -35,6 +32,14 @@ beamify_server.use(cors({
   },
   credentials: true,
 }));
+
+// Custom middleware to skip adminBlock for /v1/auth/init-admin
+beamify_server.use((req, res, next) => {
+  if (req.path === '/v1/auth/init-admin') {
+    return next();
+  }
+  adminBlock(req, res, next);
+});
 
 // view engine setup
 beamify_server.set('views', path.join(__dirname, 'views'));

@@ -8,6 +8,7 @@ const logger = require('../logs/logger');
 const agamifyService = require('./gamify/agamifyService');
 const abadgesService = require('./gamify/abadgesService');
 const arewardService = require('./gamify/arewardService');
+const apaymentService = require('./payment/apaymentService');
 
 exports.createUser = async (req, res, next) => {
   try {
@@ -86,10 +87,44 @@ exports.deleteUser = async (req, res, next) => {
 
 exports.banUser = async (req, res, next) => {
   try {
-    const user = await auserService.banUser(req.params.id);
+    const { type, issuerType, issuerId, targetId, reason, expiresAt } = req.body;
+    const user = await auserService.banUser(req.params.id, {
+      type,
+      issuerType,
+      issuerId: issuerId || req.user._id,
+      targetId,
+      reason,
+      expiresAt
+    });
     await logger.logAudit({
       user: req.user._id,
       action: 'BAN_USER',
+      target: 'User',
+      targetId: req.params.id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(user);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.unbanUser = async (req, res, next) => {
+  try {
+    const { type, targetId } = req.body;
+    const user = await auserService.unbanUser(req.params.id, { type, targetId });
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'UNBAN_USER',
       target: 'User',
       targetId: req.params.id,
       details: req.body,
@@ -872,6 +907,153 @@ exports.deleteReward = async (req, res, next) => {
     res.json({ message: 'Reward deleted' });
   } catch (err) {
     await logger.logError({ message: err.message, stack: err.stack, user: req.user ? req.user._id : undefined, endpoint: req.originalUrl, method: req.method });
+    next(err);
+  }
+};
+
+// Get total user count
+exports.getUserCount = async (req, res, next) => {
+  try {
+    const count = await auserService.getUserCount();
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get total verified user count
+exports.getVerifiedUserCount = async (req, res, next) => {
+  try {
+    const count = await auserService.getVerifiedUserCount();
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get total banned user count
+exports.getBannedUserCount = async (req, res, next) => {
+  try {
+    const count = await auserService.getBannedUserCount();
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get total timed out user count
+exports.getTimedOutUserCount = async (req, res, next) => {
+  try {
+    const count = await auserService.getTimedOutUserCount();
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Advanced: Get all users with pagination, search, and filtering
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const { page, limit, search, role, status } = req.query;
+    const result = await auserService.getAllUsers({ page, limit, search, role, status });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// --- Admin Payment Management ---
+exports.listPayments = async (req, res, next) => {
+  try {
+    const payments = await apaymentService.listPayments(req.query, {});
+    res.json(payments);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getPaymentById = async (req, res, next) => {
+  try {
+    const payment = await apaymentService.getPaymentById(req.params.id);
+    res.json(payment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.refundPayment = async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    const refund = await apaymentService.refundPayment(req.params.id, amount);
+    res.json(refund);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.listCustomers = async (req, res, next) => {
+  try {
+    const customers = await apaymentService.listCustomers(Number(req.query.limit) || 20);
+    res.json(customers);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getCustomerById = async (req, res, next) => {
+  try {
+    const customer = await apaymentService.getCustomerById(req.params.id);
+    res.json(customer);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.listSubscriptions = async (req, res, next) => {
+  try {
+    const subscriptions = await apaymentService.listSubscriptions(Number(req.query.limit) || 20);
+    res.json(subscriptions);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getSubscriptionById = async (req, res, next) => {
+  try {
+    const subscription = await apaymentService.getSubscriptionById(req.params.id);
+    res.json(subscription);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.cancelSubscription = async (req, res, next) => {
+  try {
+    const result = await apaymentService.cancelSubscription(req.params.id);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Create a test payment intent (admin/test only)
+exports.adminTestPaymentIntent = async (req, res, next) => {
+  try {
+    const { amount, currency, customer, metadata } = req.body;
+    const result = await apaymentService.createTestPaymentIntent({ amount, currency, customer, metadata });
+    res.json({
+      clientSecret: result.client_secret,
+      intent: result
+    });
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
     next(err);
   }
 };

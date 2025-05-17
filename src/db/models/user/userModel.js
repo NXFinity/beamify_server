@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
   },
   profile: {
     avatar: { type: String },
+    cover: { type: String },
     bio: { type: String, maxlength: 512 },
     displayName: { type: String, maxlength: 64 }
   },
@@ -58,9 +59,53 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordExpires: {
     type: Date
-  }
+  },
+  bans: [
+    {
+      type: {
+        type: String,
+        enum: ["SITEBAN", "TIMEBAN", "CHANNELBAN", "CHATBAN", "USERBAN"],
+        required: true
+      },
+      issuerType: {
+        type: String,
+        enum: ["ADMIN", "USER"],
+        required: true
+      },
+      issuerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'bans.issuerType'
+      },
+      targetId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Channel', // or User/Chat as needed
+        default: null
+      },
+      reason: { type: String },
+      expiresAt: { type: Date },
+      createdAt: { type: Date, default: Date.now },
+      status: { type: String, enum: ['active', 'inactive'], default: 'active' }
+    }
+  ]
 }, {
   timestamps: true
+});
+
+// Add/update pre-save hook to sync isBanned with bans
+userSchema.pre('save', function (next) {
+  const user = this;
+  const now = new Date();
+  // Check for any active SITEBAN or TIMEBAN, ignore inactive bans
+  const hasActiveBan = (user.bans || []).some(ban => {
+    if (ban.status === 'inactive') return false;
+    if (ban.type === 'SITEBAN') return true;
+    if (ban.type === 'TIMEBAN' && (!ban.expiresAt || new Date(ban.expiresAt) > now)) return true;
+    return false;
+  });
+  user.status = user.status || {};
+  user.status.isBanned = !!hasActiveBan;
+  next();
 });
 
 module.exports = mongoose.model('User', userSchema);

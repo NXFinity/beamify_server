@@ -2,6 +2,19 @@
  * User Management
  */
 const userService = require('./userService');
+const uploadToSpaces = require('../../utils/doSpaces').uploadToSpaces;
+const multer = require('multer');
+const upload = multer();
+const User = require('../../db/models/user/userModel');
+const Photo = require('../../db/models/user/photoModel');
+const Developer = require('../../db/models/user/developerModel');
+const mongoose = require('mongoose');
+let Gamify;
+try {
+  Gamify = require('../../db/models/gamify/gamifyModel');
+} catch (e) {
+  Gamify = null;
+}
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -22,14 +35,43 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
+// Public: Get user by username (public fields only)
+exports.getUserByUsername = async (req, res, next) => {
+  try {
+    const user = await userService.getUserByUsername(req.params.username);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getCurrentUser = async (req, res, next) => {
   try {
-    // Assumes req.user is set by authentication middleware
     if (!req.user) return res.status(401).json({ message: 'Not authenticated' });
     const userId = req.user.id || req.user._id;
     if (!userId) return res.status(401).json({ message: 'Not authenticated' });
-    const user = await userService.getUserById(userId);
-    res.json(user);
+
+    // Fetch the user (excluding passwordHash)
+    const user = await User.findById(userId).select('-passwordHash');
+
+    // Fetch related data
+    const developer = await Developer.findOne({ user: userId });
+    const photos = await Photo.find({ user: userId });
+    let gamify = null;
+    if (Gamify) {
+      // Ensure userId is an ObjectId for the query, using 'new' keyword
+      const objectId = mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : userId;
+      gamify = await Gamify.findOne({ user: objectId });
+    }
+
+    // Attach related data
+    const userObj = user.toObject();
+    userObj.developer = developer;
+    userObj.photos = photos;
+    userObj.gamify = gamify;
+
+    res.json(userObj);
   } catch (err) {
     next(err);
   }
@@ -54,3 +96,64 @@ exports.deleteUser = async (req, res, next) => {
     next(err);
   }
 };
+
+// POST /users/:id/avatar
+exports.uploadAvatar = [
+  upload.single('image'),
+  async (req, res, next) => {
+    try {
+      if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      const url = await uploadToSpaces({
+        userId: req.params.id,
+        fileBuffer: req.file.buffer,
+        fileName: `avatar_${Date.now()}`,
+        mimeType: req.file.mimetype,
+      });
+      const user = await userService.uploadAvatar(req.params.id, url);
+      res.json({ avatar: url, user });
+    } catch (err) {
+      next(err);
+    }
+  }
+];
+
+// POST /users/:id/cover
+exports.uploadCover = [
+  upload.single('image'),
+  async (req, res, next) => {
+    try {
+      if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      const url = await uploadToSpaces({
+        userId: req.params.id,
+        fileBuffer: req.file.buffer,
+        fileName: `cover_${Date.now()}`,
+        mimeType: req.file.mimetype,
+      });
+      const user = await userService.uploadCover(req.params.id, url);
+      res.json({ cover: url, user });
+    } catch (err) {
+      next(err);
+    }
+  }
+];
+
+// POST /users/:id/photos
+exports.uploadPhoto = [
+  upload.single('image'),
+  async (req, res, next) => {
+    try {
+      if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      const url = await uploadToSpaces({
+        userId: req.params.id,
+        fileBuffer: req.file.buffer,
+        fileName: `photo_${Date.now()}`,
+        mimeType: req.file.mimetype,
+      });
+      const caption = req.body.caption || '';
+      const photo = await userService.addPhoto(req.params.id, url, caption);
+      res.json({ photo });
+    } catch (err) {
+      next(err);
+    }
+  }
+];

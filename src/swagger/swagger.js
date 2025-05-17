@@ -3,6 +3,7 @@ const userSwagger = require('../api/user/userSwagger.json');
 const authSwagger = require('../security/authSwagger.json');
 const adminSwagger = require('../admin/adminSwagger.json');
 const gamifySwagger = require('../api/gamify/gamifySwagger.json');
+const paymentSwagger = require('../api/payment/payementSwagger.json');
 
 const swaggerDocument = {
   openapi: '3.0.0',
@@ -34,13 +35,15 @@ const swaggerDocument = {
     ...userSwagger.paths,
     ...authSwagger.paths,
     ...adminSwagger.paths,
-    ...gamifySwagger.paths
+    ...gamifySwagger.paths,
+    ...paymentSwagger.paths
   },
   tags: [
     ...(userSwagger.tags || []),
     ...(authSwagger.tags || []),
     ...(adminSwagger.tags || []),
-    ...(gamifySwagger.tags || [])
+    ...(gamifySwagger.tags || []),
+    ...(paymentSwagger.tags || [])
   ],
 };
 

@@ -74,9 +74,43 @@ exports.deleteUser = async (id) => {
   return User.findByIdAndDelete(id);
 };
 
-// Ban a user (set status.isBanned = true)
-exports.banUser = async (id) => {
-  return User.findByIdAndUpdate(id, { 'status.isBanned': true }, { new: true });
+// Ban a user (admin action, supports multiple ban types)
+exports.banUser = async (id, ban) => {
+  const user = await User.findById(id);
+  if (!user) throw new Error('User not found');
+  user.bans.push(ban);
+  await user.save(); // triggers pre-save hook to update isBanned
+  return user;
+};
+
+// Unban a user (admin action, supports multiple ban types)
+exports.unbanUser = async (id, { type, targetId }) => {
+  const user = await User.findById(id);
+  if (!user) throw new Error('User not found');
+  let updated = false;
+  const now = new Date();
+  (user.bans || []).forEach(ban => {
+    if (
+      ban.type === type &&
+      (!targetId || String(ban.targetId) === String(targetId)) &&
+      ban.status !== 'inactive'
+    ) {
+      updated = true;
+      ban.status = 'inactive';
+    }
+  });
+  // Update isBanned flag (pre-save hook will also do this, but keep for clarity)
+  const hasActiveBan = user.bans.some(ban => 
+    ban.status !== 'inactive' &&
+    (
+      (ban.type === 'SITEBAN') ||
+      (ban.type === 'TIMEBAN' && (!ban.expiresAt || new Date(ban.expiresAt) > now))
+    )
+  );
+  user.status = user.status || {};
+  user.status.isBanned = !!hasActiveBan;
+  await user.save();
+  return user;
 };
 
 // Timeout a user (set a timeoutUntil field)
@@ -132,4 +166,76 @@ exports.removePermissionFromUser = async (userId, permissionName) => {
   user.permissions = user.permissions.filter(p => p !== permissionName);
   await user.save();
   return user;
+};
+
+// Get total user count
+exports.getUserCount = async () => {
+  return User.countDocuments();
+};
+
+// Get total verified user count
+exports.getVerifiedUserCount = async () => {
+  return User.countDocuments({ isVerified: true });
+};
+
+// Get total banned user count
+exports.getBannedUserCount = async () => {
+  return User.countDocuments({ 'status.isBanned': true });
+};
+
+// Get total timed out user count
+exports.getTimedOutUserCount = async () => {
+  return User.countDocuments({ timeoutUntil: { $gt: new Date() } });
+};
+
+// Advanced: Get all users with pagination, search, and filtering
+exports.getAllUsers = async (options = {}) => {
+  const {
+    page = 1,
+    limit = 20,
+    search = '',
+    role,
+    status,
+  } = options;
+
+  const query = {};
+
+  // Search by username or email
+  if (search) {
+    query.$or = [
+      { username: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  // Filter by role
+  if (role) {
+    query.roles = role;
+  }
+
+  // Filter by status
+  if (status === 'banned') {
+    query['status.isBanned'] = true;
+  } else if (status === 'active') {
+    query['status.isBanned'] = { $ne: true };
+    query['status.isActive'] = true;
+  } else if (status === 'timedout') {
+    query.timeoutUntil = { $gt: new Date() };
+  } else if (status === 'suspended') {
+    query['status.isActive'] = false;
+  }
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const users = await User.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+  const total = await User.countDocuments(query);
+
+  return {
+    users,
+    total,
+    page: parseInt(page),
+    pageSize: parseInt(limit),
+  };
 };

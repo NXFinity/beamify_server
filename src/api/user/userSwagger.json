@@ -21,7 +21,9 @@
                         "type": "object",
                         "properties": {
                           "displayName": { "type": "string" },
-                          "avatar": { "type": "string", "format": "uri" }
+                          "avatar": { "type": "string", "format": "uri" },
+                          "cover": { "type": "string", "format": "uri" },
+                          "bio": { "type": "string" }
                         }
                       }
                     }
@@ -30,6 +32,41 @@
               }
             }
           }
+        }
+      }
+    },
+    "/users/username/{username}": {
+      "get": {
+        "summary": "Get user by username (public, non-sensitive data) [Public]",
+        "tags": ["User Management"],
+        "x-access": "public",
+        "parameters": [
+          { "name": "username", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found (public fields only)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": { "type": "string" },
+                    "profile": {
+                      "type": "object",
+                      "properties": {
+                        "displayName": { "type": "string" },
+                        "avatar": { "type": "string", "format": "uri" },
+                        "cover": { "type": "string", "format": "uri" },
+                        "bio": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "User not found" }
         }
       }
     },
@@ -87,6 +124,165 @@
         "responses": {
           "200": { "description": "Current user profile" },
           "401": { "description": "Not authenticated" }
+        }
+      }
+    },
+    "/users/{id}/avatar": {
+      "post": {
+        "summary": "Upload user avatar image [Private] (Authenticated user only)",
+        "tags": ["User Management"],
+        "x-access": "private",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": { "type": "string", "format": "binary" }
+                },
+                "required": ["image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avatar uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "avatar": { "type": "string", "format": "uri" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "No file uploaded" },
+          "401": { "description": "Not authenticated" }
+        }
+      }
+    },
+    "/users/{id}/cover": {
+      "post": {
+        "summary": "Upload user cover image [Private] (Authenticated user only)",
+        "tags": ["User Management"],
+        "x-access": "private",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": { "type": "string", "format": "binary" }
+                },
+                "required": ["image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cover uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cover": { "type": "string", "format": "uri" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "No file uploaded" },
+          "401": { "description": "Not authenticated" }
+        }
+      }
+    },
+    "/users/{id}/photos": {
+      "post": {
+        "summary": "Upload user photo [Private] (Authenticated user only)",
+        "tags": ["User Management"],
+        "x-access": "private",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": { "type": "string", "format": "binary" },
+                  "caption": { "type": "string" }
+                },
+                "required": ["image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Photo uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "photo": { "$ref": "#/components/schemas/Photo" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "No file uploaded" },
+          "401": { "description": "Not authenticated" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "profile": {
+            "type": "object",
+            "properties": {
+              "avatar": { "type": "string", "format": "uri" },
+              "cover": { "type": "string", "format": "uri" },
+              "displayName": { "type": "string" },
+              "bio": { "type": "string" }
+            }
+          }
+        }
+      },
+      "Photo": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "user": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "type": { "type": "string", "enum": ["avatar", "cover", "photo"] },
+          "caption": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
         }
       }
     }

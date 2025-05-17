@@ -1,4 +1,5 @@
 const User = require('../../db/models/user/userModel');
+const Photo = require('../../db/models/user/photoModel');
 
 exports.getAllUsers = async () => {
   return User.find().select('-passwordHash -verificationToken -verificationTokenExpires -resetPasswordToken -resetPasswordExpires');
@@ -6,6 +7,25 @@ exports.getAllUsers = async () => {
 
 exports.getUserById = async (id) => {
   return User.findById(id).select('-passwordHash -verificationToken -verificationTokenExpires -resetPasswordToken -resetPasswordExpires');
+};
+
+// Fetch user by username (public fields only)
+exports.getUserByUsername = async (username) => {
+  return User.findOne({ username }).select(`
+    username 
+    profile.avatar 
+    profile.displayName 
+    profile.bio 
+    profile.cover 
+    status.isBanned 
+    bans.type 
+    bans.status 
+    bans.expiresAt 
+    bans.createdAt 
+    bans.reason 
+    bans.issuerType 
+    bans.issuerId
+  `);
 };
 
 exports.updateUser = async (id, update) => {
@@ -22,4 +42,19 @@ exports.updateUser = async (id, update) => {
 
 exports.deleteUser = async (id) => {
   return User.findByIdAndDelete(id);
+};
+
+// Upload avatar: set profile.avatar
+exports.uploadAvatar = async (userId, url) => {
+  return User.findByIdAndUpdate(userId, { 'profile.avatar': url }, { new: true });
+};
+
+// Upload cover: set profile.cover
+exports.uploadCover = async (userId, url) => {
+  return User.findByIdAndUpdate(userId, { 'profile.cover': url }, { new: true });
+};
+
+// Add photo: create Photo entry
+exports.addPhoto = async (userId, url, caption) => {
+  return Photo.create({ user: userId, url, type: 'photo', caption });
 };

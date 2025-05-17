@@ -39,6 +39,7 @@
     "sass": "^1.88.0",
     "sass-middleware": "^0.0.3",
     "socket.io": "^4.8.1",
+    "stripe": "^18.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "ws": "^8.18.2"

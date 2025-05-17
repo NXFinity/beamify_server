@@ -10,11 +10,25 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '43200';
 
-exports.register = async (data) => {
+exports.register = async (data, overrides = {}) => {
   const { email, password, username } = data;
   // Check for existing user
   const existing = await User.findOne({ email });
-  if (existing) throw new Error('Email already in use');
+  if (existing) {
+    if (existing.status && existing.status.isBanned) {
+      throw new Error("Sorry you're a banned user");
+    }
+    throw new Error('Email already in use');
+  }
+
+  // Check for existing username (case-insensitive)
+  const existingUsername = await User.findOne({ username: { $regex: `^${username}$`, $options: 'i' } });
+  if (existingUsername) {
+    if (existingUsername.status && existingUsername.status.isBanned) {
+      throw new Error("Sorry you're a banned user");
+    }
+    throw new Error('Username already in use');
+  }
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -27,43 +41,60 @@ exports.register = async (data) => {
   const user = await User.create({
     email,
     username,
+    displayName: username,
     passwordHash,
-    roles: ['MEMBER'],
-    isVerified: false,
-    verificationToken,
-    verificationTokenExpires
+    roles: overrides.roles || ['MEMBER'],
+    isVerified: overrides.isVerified ?? false,
+    verificationToken: overrides.skipVerification ? undefined : verificationToken,
+    verificationTokenExpires: overrides.skipVerification ? undefined : verificationTokenExpires,
+    ...(overrides.extraFields || {})
   });
 
   // Create gamify profile (one-to-one)
   await createGamify({ user: user._id });
 
-  // Send verification email
-  const verificationUrl = `${FRONTEND_URL}/verify?token=${verificationToken}`;
-  await sendEmail({
-    to: user.email,
-    subject: 'Verify your Beamify account',
-    html: verifyEmailTemplate({
-      verificationCode: verificationToken,
-      verificationUrl,
-      appName: 'Beamify',
-      supportEmail: 'support@beamify.online'
-    })
-  });
+  // Send verification email unless skipping
+  if (!overrides.skipVerification) {
+    const verificationUrl = `${FRONTEND_URL}/verify?token=${verificationToken}`;
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify your Beamify account',
+      html: verifyEmailTemplate({
+        verificationCode: verificationToken,
+        verificationUrl,
+        appName: 'Beamify',
+        supportEmail: 'support@beamify.online'
+      })
+    });
+  }
 
   // Issue JWT
+  console.log('[DEBUG] JWT_EXPIRES_IN at register:', JWT_EXPIRES_IN);
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-  return { message: 'User registered. Please verify your email.', token, user: { id: user._id, email: user.email, username: user.username } };
+  const decoded = jwt.decode(token);
+  console.log('[DEBUG] JWT issued at:', decoded.iat, 'expires at:', decoded.exp, 'lifetime (s):', decoded.exp - decoded.iat);
+  return {
+    message: overrides.roles && overrides.roles.includes('SYSTEM_ADMINISTRATOR')
+      ? 'Admin account initialized.'
+      : 'User registered. Please verify your email.',
+    token,
+    user: { _id: user._id, email: user.email, username: user.username, roles: user.roles }
+  };
 };
 
 exports.login = async (data) => {
   const { email, password } = data;
   const user = await User.findOne({ email });
   if (!user) throw new Error('Invalid email or password');
+  if (user.status && user.status.isBanned) throw new Error("Sorry you're a banned user");
   if (!user.isVerified) throw new Error('Email not verified');
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new Error('Invalid email or password');
+  console.log('[DEBUG] JWT_EXPIRES_IN at login:', JWT_EXPIRES_IN);
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-  return { message: 'User logged in', token, user: { id: user._id, email: user.email, username: user.username } };
+  const decoded = jwt.decode(token);
+  console.log('[DEBUG] JWT issued at:', decoded.iat, 'expires at:', decoded.exp, 'lifetime (s):', decoded.exp - decoded.iat);
+  return { message: 'User logged in', token, user: { _id: user._id, email: user.email, username: user.username } };
 };
 
 exports.verify = async (data) => {

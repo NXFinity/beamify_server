@@ -1,20 +1,27 @@
 const express = require('express');
 const passport = require('../security/validation/passport');
 const roleCheck = require('../security/validation/roleCheck');
+const banCheck = require('../security/validation/banCheck');
 const adminController = require('./adminController');
 
 const router = express.Router();
 
 // All routes require SYSTEM_ADMINISTRATOR
-const adminAuth = [passport.authenticate('jwt', { session: false }), roleCheck('SYSTEM_ADMINISTRATOR')];
+const adminAuth = [passport.authenticate('jwt', { session: false }), banCheck, roleCheck('SYSTEM_ADMINISTRATOR')];
 
 // --- User Management ---
 router.post('/users', adminAuth, adminController.createUser);
 router.put('/users/:id', adminAuth, adminController.updateUser);
 router.delete('/users/:id', adminAuth, adminController.deleteUser);
 router.post('/users/:id/ban', adminAuth, adminController.banUser);
+router.delete('/users/:id/ban', adminAuth, adminController.unbanUser);
 router.post('/users/:id/timeout', adminAuth, adminController.timeoutUser);
 router.post('/users/:id/suspend', adminAuth, adminController.suspendUser);
+router.get('/users/count', adminAuth, adminController.getUserCount);
+router.get('/users/count-verified', adminAuth, adminController.getVerifiedUserCount);
+router.get('/users/count-banned', adminAuth, adminController.getBannedUserCount);
+router.get('/users/count-timedout', adminAuth, adminController.getTimedOutUserCount);
+router.get('/users', adminAuth, adminController.getAllUsers);
 
 // --- Role Management ---
 router.post('/roles', adminAuth, adminController.createRole);
@@ -62,5 +69,17 @@ router.get('/rewards', adminAuth, adminController.getAllRewards);
 router.get('/rewards/:id', adminAuth, adminController.getRewardById);
 router.put('/rewards/:id', adminAuth, adminController.updateReward);
 router.delete('/rewards/:id', adminAuth, adminController.deleteReward);
+
+// --- Admin Payment Management ---
+router.get('/payments', adminAuth, adminController.listPayments);
+router.get('/payments/:id', adminAuth, adminController.getPaymentById);
+router.post('/payments/:id/refund', adminAuth, adminController.refundPayment);
+router.get('/customers', adminAuth, adminController.listCustomers);
+router.get('/customers/:id', adminAuth, adminController.getCustomerById);
+router.get('/subscriptions', adminAuth, adminController.listSubscriptions);
+router.get('/subscriptions/:id', adminAuth, adminController.getSubscriptionById);
+router.post('/subscriptions/:id/cancel', adminAuth, adminController.cancelSubscription);
+// Test payment intent (admin only)
+router.post('/payment/test-intent', adminAuth, adminController.adminTestPaymentIntent);
 
 module.exports = router;

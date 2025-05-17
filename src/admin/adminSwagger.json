@@ -235,6 +235,52 @@
         }
       }
     },
+    "/admin/users/count": {
+      "get": {
+        "summary": "Get total user count [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Total user count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer", "example": 1234 }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/users/count-verified": {
+      "get": {
+        "summary": "Get total verified user count [Admin]",
+        "tags": ["Admin User Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "Total verified user count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer", "example": 1234 }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
     "/admin/roles": {
       "post": {
         "summary": "Create a new role [Admin]",
