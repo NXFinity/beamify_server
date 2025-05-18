@@ -6,9 +6,9 @@ const stripe = stripeUtils.stripe;
 // Create a payment intent
 async function createPaymentIntent(req, res) {
   try {
-    const { amount, currency, customer, metadata } = req.body;
-    const intent = await paymentService.createPaymentIntent({ amount, currency, customer, metadata });
-    res.json({ clientSecret: intent.client_secret, intent });
+    const { user, items, total, currency, customer, metadata } = req.body;
+    const { invoice, intent } = await paymentService.createPaymentIntent({ user, items, total, currency, customer, metadata });
+    res.json({ invoice, clientSecret: intent.client_secret, intent });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

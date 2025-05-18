@@ -11,18 +11,33 @@ const Payment = require('../../db/models/payments/paymentModel');
 const Invoice = require('../../db/models/payments/invoiceModel');
 
 // Create a payment intent and store in DB
-async function createPaymentIntent({ user, amount, currency, customer, metadata }) {
-  const intent = await stripeCreatePaymentIntent({ amount, currency, customer, metadata });
+async function createPaymentIntent({ user, items, total, currency, customer, metadata }) {
+  // 1. Create Invoice (order) in DB
+  const invoice = await Invoice.create({
+    user,
+    items,
+    total,
+    currency,
+    status: 'open',
+    metadata,
+  });
+  // 2. Create PaymentIntent with Stripe
+  const intent = await stripeCreatePaymentIntent({ amount: total, currency, customer, metadata });
+  // 3. Create Payment record and link to Invoice
   await Payment.create({
     user,
-    amount,
+    amount: total,
     currency,
     status: 'pending',
     paymentIntentId: intent.id,
     customerId: customer,
     metadata,
+    invoiceId: invoice._id,
   });
-  return intent;
+  // 4. Update Invoice with PaymentIntentId
+  invoice.paymentIntentId = intent.id;
+  await invoice.save();
+  return { invoice, intent };
 }
 
 // Create a customer (Stripe only)

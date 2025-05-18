@@ -38,6 +38,7 @@
     "passport-jwt": "^4.0.1",
     "sass": "^1.88.0",
     "sass-middleware": "^0.0.3",
+    "sharp": "^0.34.1",
     "socket.io": "^4.8.1",
     "stripe": "^18.1.0",
     "swagger-jsdoc": "^6.2.8",

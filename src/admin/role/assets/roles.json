@@ -10,6 +10,22 @@
     ]
   },
   {
+    "name": "PREMIUM",
+    "description": "Premium",
+    "permissions": [
+      "VIEW_SELF_PROFILE",
+      "EDIT_SELF_PROFILE"
+    ]
+  },
+  {
+    "name": "VIP",
+    "description": "VIP",
+    "permissions": [
+      "VIEW_SELF_PROFILE",
+      "EDIT_SELF_PROFILE"
+    ]
+  },
+  {
     "name": "MEMBER",
     "description": "Member",
     "permissions": [

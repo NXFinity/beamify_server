@@ -9,6 +9,7 @@ const User = require('../../db/models/user/userModel');
 const Photo = require('../../db/models/user/photoModel');
 const Developer = require('../../db/models/user/developerModel');
 const mongoose = require('mongoose');
+const sharp = require('sharp');
 let Gamify;
 try {
   Gamify = require('../../db/models/gamify/gamifyModel');
@@ -103,9 +104,22 @@ exports.uploadAvatar = [
   async (req, res, next) => {
     try {
       if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      // Only allow image mimetypes
+      if (!req.file.mimetype.startsWith('image/')) {
+        return res.status(400).json({ message: 'Invalid file type' });
+      }
+      // Resize to max 500x500
+      let buffer;
+      try {
+        buffer = await sharp(req.file.buffer)
+          .resize(500, 500, { fit: 'cover' })
+          .toBuffer();
+      } catch (err) {
+        return res.status(400).json({ message: 'Failed to process image' });
+      }
       const url = await uploadToSpaces({
         userId: req.params.id,
-        fileBuffer: req.file.buffer,
+        fileBuffer: buffer,
         fileName: `avatar_${Date.now()}`,
         mimeType: req.file.mimetype,
       });
@@ -123,9 +137,22 @@ exports.uploadCover = [
   async (req, res, next) => {
     try {
       if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      // Only allow image mimetypes
+      if (!req.file.mimetype.startsWith('image/')) {
+        return res.status(400).json({ message: 'Invalid file type' });
+      }
+      // Resize to max 1500x500
+      let buffer;
+      try {
+        buffer = await sharp(req.file.buffer)
+          .resize(1500, 500, { fit: 'cover' })
+          .toBuffer();
+      } catch (err) {
+        return res.status(400).json({ message: 'Failed to process image' });
+      }
       const url = await uploadToSpaces({
         userId: req.params.id,
-        fileBuffer: req.file.buffer,
+        fileBuffer: buffer,
         fileName: `cover_${Date.now()}`,
         mimeType: req.file.mimetype,
       });
