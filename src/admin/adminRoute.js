@@ -82,4 +82,41 @@ router.post('/subscriptions/:id/cancel', adminAuth, adminController.cancelSubscr
 // Test payment intent (admin only)
 router.post('/payment/test-intent', adminAuth, adminController.adminTestPaymentIntent);
 
+// --- Store Management ---
+router.post('/store', adminAuth, adminController.createStore);
+router.get('/store', adminAuth, adminController.getStore);
+router.put('/store', adminAuth, adminController.updateStore);
+router.delete('/store', adminAuth, adminController.deleteStore);
+
+// --- Category Management ---
+router.post('/categories', adminAuth, adminController.createCategory);
+router.get('/categories', adminAuth, adminController.getCategories);
+router.get('/categories/:id', adminAuth, adminController.getCategory);
+router.put('/categories/:id', adminAuth, adminController.updateCategory);
+router.delete('/categories/:id', adminAuth, adminController.deleteCategory);
+
+// --- Tag Management ---
+router.post('/tags', adminAuth, adminController.createTag);
+router.get('/tags', adminAuth, adminController.getTags);
+router.get('/tags/:id', adminAuth, adminController.getTag);
+router.put('/tags/:id', adminAuth, adminController.updateTag);
+router.delete('/tags/:id', adminAuth, adminController.deleteTag);
+
+// --- Product Management ---
+router.post('/products', adminAuth, adminController.createProduct);
+router.get('/products', adminAuth, adminController.getProducts);
+router.get('/products/:id', adminAuth, adminController.getProduct);
+router.put('/products/:id', adminAuth, adminController.updateProduct);
+router.delete('/products/:id', adminAuth, adminController.deleteProduct);
+
+// --- Asset Upload ---
+router.post('/assets/upload', adminAuth, adminController.uploadAsset);
+
+// --- Shipping Class Management ---
+router.post('/shipping-classes', adminAuth, adminController.createShippingClass);
+router.get('/shipping-classes', adminAuth, adminController.getAllShippingClasses);
+router.get('/shipping-classes/:id', adminAuth, adminController.getShippingClassById);
+router.put('/shipping-classes/:id', adminAuth, adminController.updateShippingClass);
+router.delete('/shipping-classes/:id', adminAuth, adminController.deleteShippingClass);
+
 module.exports = router;

@@ -23,6 +23,10 @@
     {
       "name": "Admin Reward Management",
       "description": "Endpoints for managing rewards as an administrator. Requires SYSTEM_ADMINISTRATOR role."
+    },
+    {
+      "name": "Admin Shipping Class Management",
+      "description": "Endpoints for managing shipping classes as an administrator. Requires SYSTEM_ADMINISTRATOR role."
     }
   ],
   "paths": {
@@ -828,6 +832,158 @@
           "200": { "description": "Reward deleted" },
           "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
         }
+      }
+    },
+    "/admin/shipping-classes": {
+      "post": {
+        "summary": "Create a shipping class [Admin]",
+        "tags": ["Admin Shipping Class Management"],
+        "x-access": "admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ShippingClassInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shipping class created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ShippingClass" }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "get": {
+        "summary": "Get all shipping classes [Admin]",
+        "tags": ["Admin Shipping Class Management"],
+        "x-access": "admin",
+        "responses": {
+          "200": {
+            "description": "List of shipping classes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ShippingClass" }
+                }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    },
+    "/admin/shipping-classes/{id}": {
+      "get": {
+        "summary": "Get a shipping class by ID [Admin]",
+        "tags": ["Admin Shipping Class Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipping class found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ShippingClass" }
+              }
+            }
+          },
+          "404": { "description": "Shipping class not found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "put": {
+        "summary": "Update a shipping class [Admin]",
+        "tags": ["Admin Shipping Class Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ShippingClassInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Shipping class updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ShippingClass" }
+              }
+            }
+          },
+          "404": { "description": "Shipping class not found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a shipping class [Admin]",
+        "tags": ["Admin Shipping Class Management"],
+        "x-access": "admin",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Shipping class deleted" },
+          "404": { "description": "Shipping class not found" },
+          "403": { "description": "Forbidden: Requires SYSTEM_ADMINISTRATOR role" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ShippingClass": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string", "example": "Heavy Goods" },
+          "description": { "type": "string", "example": "For heavy or bulky items" },
+          "rates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "Standard" },
+                "price": { "type": "number", "example": 9.99 }
+              }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ShippingClassInput": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Heavy Goods" },
+          "description": { "type": "string", "example": "For heavy or bulky items" },
+          "rates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "Standard" },
+                "price": { "type": "number", "example": 9.99 }
+              },
+              "required": ["name", "price"]
+            }
+          }
+        },
+        "required": ["name", "rates"]
       }
     }
   }

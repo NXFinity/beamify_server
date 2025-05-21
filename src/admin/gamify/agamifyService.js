@@ -53,7 +53,7 @@ exports.removeCrystals = async (id, amount) => {
 // List all gamify profiles
 exports.getAllGamify = async () => {
   return Gamify.find()
-    .populate('user', 'username email')
+    .populate('user', 'username email profile.avatar')
     .populate('achievements')
     .populate('quests')
     .populate('badges');

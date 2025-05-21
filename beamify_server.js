@@ -17,6 +17,7 @@ const authRouter = require('./src/security/authRoute');
 const setupSwagger = require("./src/swagger/swagger");
 const adminRouter = require('./src/admin/adminRoute');
 const gamifyRouter = require('./src/api/gamify/gamifyRoute');
+const productsRouter = require('./src/api/store/products/productRoute');
 
 const beamify_server = express();
 
@@ -57,6 +58,7 @@ beamify_server.use('/v1/users', usersRouter);
 beamify_server.use('/v1/auth', authRouter);
 beamify_server.use('/v1/admin', adminRouter);
 beamify_server.use('/v1/gamify', gamifyRouter);
+beamify_server.use('/v1/products', productsRouter);
 
 // Swagger docs (after all routes)
 setupSwagger(beamify_server);

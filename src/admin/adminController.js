@@ -9,6 +9,15 @@ const agamifyService = require('./gamify/agamifyService');
 const abadgesService = require('./gamify/abadgesService');
 const arewardService = require('./gamify/arewardService');
 const apaymentService = require('./payment/apaymentService');
+const ashopService = require('./shop/ashopService');
+const acategoryService = require('./shop/acategoryService');
+const atagService = require('./shop/atagService');
+const aproductService = require('./shop/aproductService');
+const doSpaces = require('../utils/doSpaces');
+const multer = require('multer');
+const upload = multer();
+const sharp = require('sharp');
+const ashippingService = require('./shop/ashippingService');
 
 exports.createUser = async (req, res, next) => {
   try {
@@ -1054,6 +1063,596 @@ exports.adminTestPaymentIntent = async (req, res, next) => {
       method: req.method,
       details: req.body
     });
+    next(err);
+  }
+};
+
+// --- Store Management ---
+exports.createStore = async (req, res, next) => {
+  try {
+    const store = await ashopService.createStore(req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'CREATE_STORE',
+      target: 'Store',
+      targetId: store._id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(store);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.getStore = async (req, res, next) => {
+  try {
+    const store = await ashopService.getStore();
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_STORE',
+      target: 'Store',
+      targetId: store ? store._id : undefined,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(store);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.updateStore = async (req, res, next) => {
+  try {
+    const store = await ashopService.updateStore(req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'UPDATE_STORE',
+      target: 'Store',
+      targetId: store._id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(store);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.deleteStore = async (req, res, next) => {
+  try {
+    const result = await ashopService.deleteStore();
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'DELETE_STORE',
+      target: 'Store',
+      targetId: undefined,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(result);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+// --- Category Management ---
+exports.createCategory = async (req, res, next) => {
+  try {
+    const category = await acategoryService.createCategory(req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'CREATE_CATEGORY',
+      target: 'Category',
+      targetId: category._id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(category);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.getCategory = async (req, res, next) => {
+  try {
+    const category = await acategoryService.getCategory(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_CATEGORY',
+      target: 'Category',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(category);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.getCategories = async (req, res, next) => {
+  try {
+    const categories = await acategoryService.getCategories();
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_CATEGORIES',
+      target: 'Category',
+      targetId: undefined,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(categories);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.updateCategory = async (req, res, next) => {
+  try {
+    const category = await acategoryService.updateCategory(req.params.id, req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'UPDATE_CATEGORY',
+      target: 'Category',
+      targetId: req.params.id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(category);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.deleteCategory = async (req, res, next) => {
+  try {
+    const result = await acategoryService.deleteCategory(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'DELETE_CATEGORY',
+      target: 'Category',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(result);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+// --- Tag Management ---
+exports.createTag = async (req, res, next) => {
+  try {
+    const tag = await atagService.createTag(req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'CREATE_TAG',
+      target: 'Tag',
+      targetId: tag._id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(tag);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.getTag = async (req, res, next) => {
+  try {
+    const tag = await atagService.getTag(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_TAG',
+      target: 'Tag',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(tag);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.getTags = async (req, res, next) => {
+  try {
+    const tags = await atagService.getTags();
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_TAGS',
+      target: 'Tag',
+      targetId: undefined,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(tags);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.updateTag = async (req, res, next) => {
+  try {
+    const tag = await atagService.updateTag(req.params.id, req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'UPDATE_TAG',
+      target: 'Tag',
+      targetId: req.params.id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(tag);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.deleteTag = async (req, res, next) => {
+  try {
+    const result = await atagService.deleteTag(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'DELETE_TAG',
+      target: 'Tag',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(result);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+// --- Product Management ---
+exports.createProduct = async (req, res, next) => {
+  try {
+    const product = await aproductService.createProduct(req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'CREATE_PRODUCT',
+      target: 'Product',
+      targetId: product._id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(product);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.getProduct = async (req, res, next) => {
+  try {
+    const product = await aproductService.getProduct(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_PRODUCT',
+      target: 'Product',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(product);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.getProducts = async (req, res, next) => {
+  try {
+    const products = await aproductService.getProducts();
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'GET_PRODUCTS',
+      target: 'Product',
+      targetId: undefined,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(products);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const product = await aproductService.updateProduct(req.params.id, req.body);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'UPDATE_PRODUCT',
+      target: 'Product',
+      targetId: req.params.id,
+      details: req.body,
+      ip: req.ip
+    });
+    res.json(product);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: req.body
+    });
+    next(err);
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const result = await aproductService.deleteProduct(req.params.id);
+    await logger.logAudit({
+      user: req.user._id,
+      action: 'DELETE_PRODUCT',
+      target: 'Product',
+      targetId: req.params.id,
+      details: undefined,
+      ip: req.ip
+    });
+    res.json(result);
+  } catch (err) {
+    await logger.logError({
+      message: err.message,
+      stack: err.stack,
+      user: req.user ? req.user._id : undefined,
+      endpoint: req.originalUrl,
+      method: req.method,
+      details: undefined
+    });
+    next(err);
+  }
+};
+
+// --- Asset Upload ---
+exports.uploadAsset = [
+  upload.single('file'),
+  async (req, res, next) => {
+    try {
+      const { storeId, vendorId, assetType } = req.body;
+      if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+      if (!storeId && !vendorId) return res.status(400).json({ message: 'storeId or vendorId is required' });
+      if (!assetType) return res.status(400).json({ message: 'assetType is required' });
+      if (!req.file.mimetype.startsWith('image/')) return res.status(400).json({ message: 'Only image files are allowed' });
+
+      let buffer = req.file.buffer;
+      // Resize based on assetType
+      if (assetType === 'logo') {
+        buffer = await sharp(buffer).resize(500, 500, { fit: 'cover' }).toBuffer();
+      } else if (assetType === 'cover') {
+        buffer = await sharp(buffer).resize(1500, 500, { fit: 'cover' }).toBuffer();
+      }
+
+      let path;
+      if (storeId) {
+        path = `store/${storeId}/${assetType}`;
+      } else {
+        path = `vendor/${vendorId}/${assetType}`;
+      }
+      const url = await doSpaces.uploadToSpaces({
+        path,
+        fileBuffer: buffer,
+        fileName: req.file.originalname,
+        mimeType: req.file.mimetype
+      });
+      await logger.logAudit({
+        user: req.user._id,
+        action: 'UPLOAD_ASSET',
+        target: 'Asset',
+        targetId: undefined,
+        details: { path, fileName: req.file.originalname },
+        ip: req.ip
+      });
+      res.json({ url });
+    } catch (err) {
+      await logger.logError({
+        message: err.message,
+        stack: err.stack,
+        user: req.user ? req.user._id : undefined,
+        endpoint: req.originalUrl,
+        method: req.method,
+        details: req.body
+      });
+      // Return a 400 for known errors, 500 for unknown
+      if (err.message && (
+        err.message.includes('No file uploaded') ||
+        err.message.includes('storeId or vendorId is required') ||
+        err.message.includes('assetType is required') ||
+        err.message.includes('Only image files are allowed')
+      )) {
+        return res.status(400).json({ message: err.message });
+      }
+      next(err);
+    }
+  }
+];
+
+exports.getAllShippingClasses = async (req, res, next) => {
+  try {
+    const classes = await ashippingService.getAllShippingClasses();
+    res.json(classes);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getShippingClassById = async (req, res, next) => {
+  try {
+    const shippingClass = await ashippingService.getShippingClassById(req.params.id);
+    if (!shippingClass) return res.status(404).json({ message: 'Shipping class not found' });
+    res.json(shippingClass);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.createShippingClass = async (req, res, next) => {
+  try {
+    const created = await ashippingService.createShippingClass(req.body);
+    res.json(created);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateShippingClass = async (req, res, next) => {
+  try {
+    const updated = await ashippingService.updateShippingClass(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ message: 'Shipping class not found' });
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteShippingClass = async (req, res, next) => {
+  try {
+    const deleted = await ashippingService.deleteShippingClass(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Shipping class not found' });
+    res.json({ message: 'Shipping class deleted' });
+  } catch (err) {
     next(err);
   }
 };

@@ -13,8 +13,15 @@ const client = new S3Client({
     },
 });
 
-async function uploadToSpaces({ userId, fileBuffer, fileName, mimeType }) {
-    const key = `users/${userId}/${fileName}`;
+async function uploadToSpaces({ path, userId, fileBuffer, fileName, mimeType }) {
+    let key;
+    if (path) {
+        key = `${path.replace(/\/$/, '')}/${fileName}`;
+    } else if (userId) {
+        key = `users/${userId}/${fileName}`;
+    } else {
+        throw new Error('Either path or userId must be provided');
+    }
     const command = new PutObjectCommand({
         Bucket: bucket,
         Key: key,

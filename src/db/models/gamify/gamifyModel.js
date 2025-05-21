@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+// Register referenced models to fix populate errors
+require('./questModel');
+require('./achievementModel');
+require('./badgeModel');
 
 const gamifySchema = new mongoose.Schema({
   user: {
